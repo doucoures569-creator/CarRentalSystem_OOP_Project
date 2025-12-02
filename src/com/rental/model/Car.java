@@ -3,46 +3,32 @@ package com.rental.model;
 import com.rental.interfaces.Rentable;
 
 public abstract class Car implements Rentable {
-    private String vehicleId;
+    private String carId;
+    private String brand;
     private String model;
     private double baseRatePerDay;
-    private boolean available;
+    private boolean isAvailable;
 
-    public Car(String vehicleId, String model, double baseRatePerDay) {
-        this.vehicleId = vehicleId;
+    public Car(String carId, String brand, String model, double baseRatePerDay) {
+        this.carId = carId;
+        this.brand = brand;
         this.model = model;
         this.baseRatePerDay = baseRatePerDay;
-        this.available = true;
+        this.isAvailable = true;
     }
 
-    public abstract double calculateRentalFee(int days);
-
-    public String getVehicleId() { return vehicleId; }
+    public String getCarId() { return carId; }
+    public String getBrand() { return brand; }
     public String getModel() { return model; }
     public double getBaseRatePerDay() { return baseRatePerDay; }
+    public boolean isAvailable() { return isAvailable; }
 
-    @Override
-    public boolean rent() {
-        if (available) {
-            available = false;
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean returnItem() {
-        available = true;
-        return true;
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return available;
+    public void setAvailable(boolean available) {
+        this.isAvailable = available;
     }
 
     @Override
     public String toString() {
-        return model + " (ID: " + vehicleId + ")";
+        return brand + " " + model + " (" + carId + ")";
     }
 }
