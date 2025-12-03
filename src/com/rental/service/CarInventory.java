@@ -17,12 +17,12 @@ public class CarInventory {
 
     public void addCar(Car car) {
         cars.add(car);
-        System.out.println("Voiture ajoutee: " + car.getBrand() + " " + car.getModel());
+        System.out.println("Car added: " + car.getBrand() + " " + car.getModel());
     }
 
     public void removeCar(String carId) {
         cars.removeIf(c -> c.getCarId().equals(carId));
-        System.out.println("Voiture retiree avec ID: " + carId);
+        System.out.println("Car removed with ID: " + carId);
     }
 
     public List<Car> getCars() {
@@ -39,24 +39,24 @@ public class CarInventory {
                 car.setAvailable(false);
                 Rental rental = new Rental(car, customer, days);
                 rentals.add(rental);
-                System.out.println("\n--- SUCCES ---");
-                System.out.println("Location validee pour " + customer.getName());
-                System.out.println("Voiture: " + car.getBrand() + " " + car.getModel());
-                System.out.println("Prix total: " + rental.getRentalFee());
+                System.out.println("\n--- SUCCESS ---");
+                System.out.println("Rental confirmed for " + customer.getName());
+                System.out.println("Car: " + car.getBrand() + " " + car.getModel());
+                System.out.println("Total Fee: " + rental.getRentalFee());
                 return;
             }
         }
-        System.out.println("\n[Erreur] Voiture introuvable ou deja louee.");
+        System.out.println("\n[Error] Car not found or already rented.");
     }
 
     public void returnCar(String carId) {
         for (Car car : cars) {
             if (car.getCarId().equals(carId) && !car.isAvailable()) {
                 car.setAvailable(true);
-                System.out.println("\nVoiture retournee: " + carId);
+                System.out.println("\nCar returned successfully: " + carId);
                 return;
             }
         }
-        System.out.println("Erreur: Impossible de retourner cette voiture.");
+        System.out.println("[Error] Cannot return car. It might not be rented or does not exist.");
     }
 }
