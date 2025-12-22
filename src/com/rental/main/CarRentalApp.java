@@ -25,14 +25,14 @@ public class CarRentalApp {
         inventory.addCar(ford);
 
         // 4. Create a Customer
-        Customer client1 = new Customer("U001", "Ali Yilmaz");
+        Customer client1 = new Customer("U001", "Souleymane ");
 
         // 5. Rent a Gas Car (3 days)
         // Calculation: 50 * 3 = 150
         inventory.rentCar("C001", client1, 3);
 
         // 6. Try to rent the same car again (Should fail)
-        Customer client2 = new Customer("U002", "Ayse Demir");
+        Customer client2 = new Customer("U002", "Ousmane");
         inventory.rentCar("C001", client2, 2);
 
         // 7. Return the car
