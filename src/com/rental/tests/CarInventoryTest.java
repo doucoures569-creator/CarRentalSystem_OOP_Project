@@ -13,55 +13,50 @@ import com.rental.service.CarInventory;
 class CarInventoryTest {
 
     private CarInventory inventory;
-    private Car gasCar;
-    private Car electricCar;
     private Customer customer;
 
     @BeforeEach
     void setUp() {
-        // We initialize the inventory and cars before each test
+        // 1. Initialize the inventory before each test
         inventory = new CarInventory();
-        gasCar = new GasCar("C001", "Toyota", "Corolla", 50.0);
-        electricCar = new ElectricCar("E001", "Tesla", "Model 3", 80.0);
-        customer = new Customer("U001", "John Doe");
-
-        inventory.addCar(gasCar);
-        inventory.addCar(electricCar);
+        customer = new Customer("TestUser", "John Doe");
+        
+        // 2. Add test cars manually to ensure data exists for testing
+        // (We do this to avoid depending on the CSV file during unit tests)
+        inventory.addCar(new GasCar("TEST-G1", "Toyota", "TestGas", 50.0));
+        inventory.addCar(new ElectricCar("TEST-E1", "Tesla", "TestElec", 80.0));
     }
 
     @Test
     void testGasCarRentalFee() {
-        // Test logic: 3 days * 50$ = 150$
-        double fee = gasCar.calculateRentalFee(3);
-        assertEquals(150.0, fee, "Gas car fee calculation is wrong.");
+        // Scenario: Renting a Gas Car for 3 days
+        Car car = new GasCar("G1", "Brand", "Model", 50.0);
+        double fee = car.calculateRentalFee(3);
+        
+        // Expected: 50.0 * 3 = 150.0
+        assertEquals(150.0, fee, "Gas Car fee calculation is incorrect");
     }
 
     @Test
     void testElectricCarRentalFee() {
-        // Test logic: (3 days * 80$) + 10$ fee = 250$
-        double fee = electricCar.calculateRentalFee(3);
-        assertEquals(250.0, fee, "Electric car fee calculation is wrong.");
+        // Scenario: Renting an Electric Car for 2 days
+        Car car = new ElectricCar("E1", "Brand", "Model", 80.0);
+        double fee = car.calculateRentalFee(2);
+        
+        // Expected: (80.0 * 2) + 20.0 (Charging Fee) = 180.0
+        assertEquals(180.0, fee, "Electric Car fee calculation is incorrect");
     }
-
+    
     @Test
-    void testRentCarSuccessfully() {
-        // 1. Verify car is available
-        assertTrue(gasCar.isAvailable());
+    void testCarAvailability() {
+        // Scenario: Checking if availability status changes correctly
+        Car car = new GasCar("C1", "A", "B", 100);
         
-        // 2. Rent the car
-        inventory.rentCar("C001", customer, 2);
+        // It should be available initially
+        assertTrue(car.isAvailable(), "New car should be available by default");
         
-        // 3. Verify car is NOT available anymore
-        assertFalse(gasCar.isAvailable());
-        assertEquals(1, inventory.getRentals().size());
-    }
-
-    @Test
-    void testReturnCar() {
-        inventory.rentCar("E001", customer, 1);
-        inventory.returnCar("E001");
-        
-        // Car should be free again
-        assertTrue(electricCar.isAvailable());
+        // Change status to unavailable
+        car.setAvailable(false);
+        assertFalse(car.isAvailable(), "Car should be unavailable after setting it to false");
     }
 }

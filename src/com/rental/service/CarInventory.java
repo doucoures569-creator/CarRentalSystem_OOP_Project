@@ -1,84 +1,112 @@
 package com.rental.service;
 
-import com.rental.model.Car;
-import com.rental.model.Customer;
-import com.rental.model.Rental;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Service class that manages the car inventory and rental operations.
- * Acts as the main controller for the business logic.
- */
+import com.rental.model.Car;
+import com.rental.model.Customer;
+import com.rental.model.ElectricCar;
+import com.rental.model.GasCar;
+import com.rental.model.Rental;
+
 public class CarInventory {
+
     private List<Car> cars;
     private List<Rental> rentals;
+    
+    // The name of the CSV file
+    private static final String CSV_FILE = "cars.csv";
 
-    /**
-     * Constructor to initialize empty lists for cars and rentals.
-     */
     public CarInventory() {
         this.cars = new ArrayList<>();
         this.rentals = new ArrayList<>();
+        // Load data automatically when the service starts
+        loadCarsFromCSV();
     }
 
-    /**
-     * Adds a new car to the inventory.
-     * @param car The car object to add
-     */
+    // --- METHOD TO READ THE CSV FILE ---
+    private void loadCarsFromCSV() {
+        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Split the line by comma
+                String[] data = line.split(",");
+
+                // Parse data
+                String type = data[0].trim();
+                String id = data[1].trim();
+                String brand = data[2].trim();
+                String model = data[3].trim();
+                double price = Double.parseDouble(data[4].trim());
+
+                if (type.equalsIgnoreCase("Gas")) {
+                    cars.add(new GasCar(id, brand, model, price));
+                } else if (type.equalsIgnoreCase("Electric")) {
+                    cars.add(new ElectricCar(id, brand, model, price));
+                }
+            }
+            System.out.println("--> SYSTEM: Data loaded successfully from " + CSV_FILE);
+        } catch (Exception e) {
+            System.out.println("--> ERROR: Could not read CSV file. " + e.getMessage());
+        }
+    }
+
     public void addCar(Car car) {
         cars.add(car);
-        System.out.println("Car added: " + car.getBrand() + " " + car.getModel());
     }
 
-    /**
-     * Removes a car from the inventory based on its ID.
-     * @param carId The unique ID of the car to remove
-     */
-    public void removeCar(String carId) {
-        cars.removeIf(c -> c.getCarId().equals(carId));
-        System.out.println("Car removed with ID: " + carId);
-    }
-
-    public List<Car> getCars() { return cars; }
-    public List<Rental> getRentals() { return rentals; }
-
-    /**
-     * Processes a car rental for a customer.
-     * Checks availability before confirming the transaction.
-     * @param carId The ID of the car to rent
-     * @param customer The customer renting the car
-     * @param days The duration of the rental
-     */
     public void rentCar(String carId, Customer customer, int days) {
+        Car selectedCar = null;
         for (Car car : cars) {
-            if (car.getCarId().equals(carId) && car.isAvailable()) {
-                car.setAvailable(false);
-                Rental rental = new Rental(car, customer, days);
-                rentals.add(rental);
-                System.out.println("\n--- SUCCESS ---");
-                System.out.println("Rental confirmed for " + customer.getName());
-                System.out.println("Car: " + car.getBrand() + " " + car.getModel());
-                System.out.println("Total Fee: " + rental.getRentalFee());
-                return;
+            if (car.getCarId().equalsIgnoreCase(carId)) {
+                selectedCar = car;
+                break;
             }
         }
-        System.out.println("\n[Error] Car not found or already rented.");
+
+        if (selectedCar != null && selectedCar.isAvailable()) {
+            selectedCar.setAvailable(false);
+            Rental rental = new Rental(selectedCar, customer, days);
+            rentals.add(rental);
+            
+            System.out.println("\n--- SUCCESS ---");
+            System.out.println("Rental confirmed for " + customer.getName());
+            System.out.println("Car: " + selectedCar.getBrand() + " " + selectedCar.getModel());
+            System.out.println("Total Fee: " + rental.getRentalFee());
+        } else {
+            System.out.println("\n--- ERROR ---");
+            System.out.println("Car not found or already rented.");
+        }
     }
 
-    /**
-     * Processes the return of a rented car.
-     * Makes the car available again in the system.
-     * @param carId The ID of the car being returned
-     */
     public void returnCar(String carId) {
-        for (Car car : cars) {
-            if (car.getCarId().equals(carId) && !car.isAvailable()) {
-                car.setAvailable(true);
-                System.out.println("\nCar returned successfully: " + carId);
-                return;
+        Rental rentalToRemove = null;
+        for (Rental rental : rentals) {
+            if (rental.getCar().getCarId().equalsIgnoreCase(carId)) {
+                rentalToRemove = rental;
+                break;
             }
         }
-        System.out.println("[Error] Cannot return car. It might not be rented or does not exist.");
+
+        if (rentalToRemove != null) {
+            rentalToRemove.getCar().setAvailable(true);
+            rentals.remove(rentalToRemove);
+            System.out.println("\n--- SUCCESS ---");
+            System.out.println("Car returned successfully: " + carId);
+        } else {
+            System.out.println("\n--- ERROR ---");
+            System.out.println("No active rental found for this Car ID.");
+        }
+    }
+
+    public void displayAvailableCars() {
+        System.out.println("\n--- AVAILABLE CARS ---");
+        for (Car car : cars) {
+            if (car.isAvailable()) {
+                System.out.println(car); 
+            }
+        }
     }
 }

@@ -19,10 +19,10 @@ public class ElectricCar extends Car {
 
     /**
      * Calculates the rental fee for an electric car.
-     * Logic: (rate * days) + 10.0 fixed charging fee.
+     * Logic: (rate * days) + 20.0 fixed charging fee.
      */
     @Override
     public double calculateRentalFee(int days) {
-        return (getBaseRatePerDay() * days) + 10;
+        return (getBaseRatePerDay() * days) + 20;
     }
 }
